@@ -17,8 +17,8 @@ public class HUD {
     }
 
     public void draw(SpriteBatch batch, float delta){
-        font.getData().setScale(1f,1f);
+        font.getData().setScale(10f,10f);
         font.setColor(Color.WHITE);
-        font.draw(batch, "Testasdfsdfg", 50, 50);
+        font.draw(batch, "Testasdfsdfg", 0, 0);
     }
 }

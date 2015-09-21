@@ -39,7 +39,7 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		camHUD = new OrthographicCamera();
 		batchHud = new SpriteBatch();
 		viewportHUD = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-		camHUD.position.set(VIRTUAL_WIDTH*0.5f, VIRTUAL_HEIGHT*0.5f,0f);
+		camHUD.position.set(SCENE_WIDTH*0.5f, SCENE_HEIGHT*0.5f,0f);
 		cam = new OrthographicCamera();
 		cam.position.set(SCENE_WIDTH * 0.5f, SCENE_HEIGHT * 0.5f, 0f);
 		cam.zoom = 10;
@@ -125,7 +125,9 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		batch.end();
 
 		//Draw HUD
+
 		camHUD.update();
+		viewportHUD.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		viewportHUD.apply();
 		batchHud.setProjectionMatrix(camHUD.combined);
 		batchHud.begin();
@@ -156,6 +158,11 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		touch.set(cam.unproject(touch));
 		Gdx.app.log("Touched Norm", "" + screenX + "," + screenY);
 		Gdx.app.log("Touched Unproject", "" + touch.x +","+ touch.y);
+		touch.set(screenX, screenY, 0);
+		//touch.set(camHUD.unproject(touch));
+
+		Gdx.app.log("Touched Unproject", "" + touch.x*WORLD_TO_SCREEN+camHUD.position.x + "," +
+				touch.y*WORLD_TO_SCREEN+camHUD.position.y);
 		return super.touchDown(screenX, screenY, pointer, button);
 	}
 

@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class Train {
     BitmapFont font = new BitmapFont();
     private float drawBarLength = 4f;
     private float minDist = 0.5f*drawBarLength, maxDist = drawBarLength;
-    private int numWagons = 250;
+    private int numWagons = 50;
     private Texture wagonT;
     private ArrayList<Wagon> wagons;
 
@@ -91,7 +92,17 @@ public class Train {
         font.setColor(1,0,0,1);
         font.getData().setScale(0.1f,0.1f);
         for (Wagon wagon : wagons) {
-            batch.draw(wagonT,
+            TextureRegion wagonTR = new TextureRegion(wagonT);
+            AssetLoader.wagonS.setPosition(wagon.position.x, wagon.position.y);
+            AssetLoader.wagonS.setScale(0.1f);
+            float x = wagon.velocity.x > 2 ? wagon.velocity.x/3 : 0.2f;
+            if(wagon.velocity.x > 0)
+                AssetLoader.wagonS.setColor(0f, x, 0f, 1f);
+            if(wagon.velocity.x < 0)
+                AssetLoader.wagonS.setColor(x, 0f, 0f, 1f);
+            if(wagon.velocity.x == 0)
+                AssetLoader.wagonS.setColor(1f, 1f, 1f, 1f);
+           /* batch.draw(AssetLoader.wagonS,
                     wagon.position.x, wagon.position.y,
                     0, 0,
                     wagon.size.x, wagon.size.y,
@@ -99,7 +110,8 @@ public class Train {
                     0,
                     0, 0,
                     wagonT.getWidth(), wagonT.getHeight(),
-                    false, false);
+                    false, false);*/
+            AssetLoader.wagonS.draw(batch);
 
             //font.draw(batch,"Vel: "+Math.round(wagon.velocity.x), wagon.position.x, wagon.position
                //     .y+2f);
