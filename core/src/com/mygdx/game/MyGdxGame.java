@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
@@ -30,6 +31,8 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 	private HUD hud;
 	private String inputString = "0";
 	boolean typing = false;
+	private BitmapFont font;
+	private int trainIndex = -1;
 
 	@Override
 	public void create () {
@@ -39,7 +42,7 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		camHUD = new OrthographicCamera();
 		batchHud = new SpriteBatch();
 		viewportHUD = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-		camHUD.position.set(SCENE_WIDTH*0.5f, SCENE_HEIGHT*0.5f,0f);
+		//camHUD.position.set(SCENE_WIDTH*0.5f, SCENE_HEIGHT*0.5f,0f);
 		cam = new OrthographicCamera();
 		cam.position.set(SCENE_WIDTH * 0.5f, SCENE_HEIGHT * 0.5f, 0f);
 		cam.zoom = 10;
@@ -84,11 +87,11 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 				cam.position.x += CAMERA_MOVE_SPEED * delta * cam.zoom;
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-				cam.zoom -= CAMERA_MOVE_SPEED * delta * cam.zoom;
+				cam.zoom -= CAMERA_ZOOM_SPEED * delta * cam.zoom;
 				if (cam.zoom < 0.5f) cam.zoom = 0.5f;
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-				cam.zoom += CAMERA_MOVE_SPEED * delta * cam.zoom;
+				cam.zoom += CAMERA_ZOOM_SPEED * delta * cam.zoom;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 				train.stop(0);
@@ -98,6 +101,9 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 				train.zero(0);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+				reset();
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
@@ -122,6 +128,7 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
 		train.draw(batch);
+
 		batch.end();
 
 		//Draw HUD
@@ -132,24 +139,23 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		batchHud.setProjectionMatrix(camHUD.combined);
 		batchHud.begin();
 		hud.draw(batchHud, delta);
+		AssetLoader.font.draw(batchHud, "Test",0,0);
 		batchHud.end();
-
-
 	}
 
 	@Override
 	public void pause() {
-
 	}
 
 	@Override
 	public void resume() {
-
 	}
 
 	@Override
 	public void dispose() {
-
+		AssetLoader.dispose();
+		batch.dispose();
+		batchHud.dispose();
 	}
 
 	@Override
@@ -157,13 +163,20 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		Vector3 touch = new Vector3(screenX, screenY, 0);
 		touch.set(cam.unproject(touch));
 		Gdx.app.log("Touched Norm", "" + screenX + "," + screenY);
-		Gdx.app.log("Touched Unproject", "" + touch.x +","+ touch.y);
+		Gdx.app.log("Touched Unproject", "" + touch.x + "," + touch.y);
 		touch.set(screenX, screenY, 0);
 		//touch.set(camHUD.unproject(touch));
 
-		Gdx.app.log("Touched Unproject", "" + touch.x*WORLD_TO_SCREEN+camHUD.position.x + "," +
-				touch.y*WORLD_TO_SCREEN+camHUD.position.y);
+		Gdx.app.log("Touched Unproject", "" + touch.x * WORLD_TO_SCREEN + camHUD.position.x + "," +
+				touch.y * WORLD_TO_SCREEN + camHUD.position.y);
 		return super.touchDown(screenX, screenY, pointer, button);
+	}
+
+	public void reset(){
+		cam.position.set(SCENE_WIDTH*0.5f, SCENE_HEIGHT*0.5f, 0f);
+		cam.update();
+		train.reset();
+		trainIndex = -1;
 	}
 
 

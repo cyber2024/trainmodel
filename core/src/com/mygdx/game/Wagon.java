@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector2;
  * Created by Russell Elfenbein on 9/21/2015.
  */
 public class Wagon {
-    public Vector2 position, velocity, acceleration, force, size, forceFront, forceRear,
+    public Vector2 position, velocity, acceleration, forceResultant, size, forceFront, forceRear,
             forceBreaks, centre;
-    public float mass_chassis, mass_load, rollingFriction;
+    public float mass_chassis, mass_load, rollingFriction, stressFront, strainFront, momentum;
     public int index;
 
 
@@ -19,7 +19,7 @@ public class Wagon {
         centre = new Vector2(position.x+size.x*0.5f, position.y+size.y*0.5f);
         velocity = new Vector2();
         acceleration = new Vector2();
-        force =  new Vector2();
+        forceResultant =  new Vector2();
         rollingFriction = 0;
         forceFront = new Vector2();
         forceRear = new Vector2();
