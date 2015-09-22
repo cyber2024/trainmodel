@@ -13,9 +13,9 @@ import java.util.ArrayList;
 public class Train {
     BitmapFont font = new BitmapFont();
     private float drawBarLength = 4f;
-    private float minDist = 0.5f*drawBarLength, maxDist = drawBarLength;
+    private float minDist = 0.1f*drawBarLength, maxDist = drawBarLength;
 
-    private int numWagons = 5;
+    private int numWagons = 50;
     private ArrayList<Wagon> wagons;
 
     public Train(){
@@ -27,13 +27,16 @@ public class Train {
     }
 
     public void update(float delta){
+
+        //for all wagons on the train, work out their velocity from resultant force
         for(Wagon wagon : wagons){
+            //Set accelleration from resultant force and mass
             wagon.acceleration.set(wagon.forceResultant.x/wagon.mass_chassis,
                     wagon.forceResultant.y/wagon.mass_chassis);
+            //add accelleration to velocity
             wagon.velocity.add(wagon.acceleration);
+            //add delta-scaled velocity to position
             wagon.position.add(wagon.velocity.cpy().scl(delta));
-            wagon.centre = new Vector2(wagon.position.x+wagon.size.x*0.5f,
-                    wagon.position.y+wagon.size.y*0.5f);
         }
     }
 
@@ -41,7 +44,13 @@ public class Train {
 
     }
 
-    public float calcCollissionTime(int i, float delta){
+    public float calcCollissionTime(int i, float delta, float displacement){
+        Wagon wagon = wagons.get(i);
+        Wagon nextWagon = wagons.get(i+1);
+
+
+        float vA0 = wagon.velocity.x;
+        float vB0 = nextWagon.velocity.x;
 
         return 0;
     }
@@ -64,10 +73,11 @@ public class Train {
                     }
                 }
                 if(tmpOverlap>maxDist){
-                    if(tmpOverlap>maxSpacing)
-                        maxSpacing = tmpOverlap-maxDist;
+                    if(tmpOverlap>maxSpacing) {
+                        maxSpacing = tmpOverlap - maxDist;
                         indexMS = i;
-                    Gdx.app.log("Collision at wagon maxspacing",""+i);
+                        Gdx.app.log("Collision at wagon maxspacing", "" + i);
+                    }
                 }
             }
             if(maxOverlap > maxSpacing){
@@ -84,6 +94,11 @@ public class Train {
         float maxSpacing = 0, maxOverlap = 0, tmpOverlap = 0;
 
         index = getCollision();
+        float timeStep = -1;
+        //timeStep = calcCollissionTime(index, delta);
+        if(timeStep != -1)
+        Gdx.app.log("TimeCalced", "TimeStep: "+timeStep+" Delta:"+delta);
+
 
 
         for(int i = 0; i < wagons.size(); i++) {
@@ -97,21 +112,28 @@ public class Train {
             if(i>0){
                 //test distance and velocity of wagon ahead
                 prevWagon = wagons.get(i-1);
-                if(wagon.position.dst(prevWagon.position) < wagon.size.x ){
-                    prevWagon.position.set(wagon.position.x+wagon.size.x, 2.5f);
+                if(wagon.position.dst(prevWagon.position) < wagon.size.x +minDist){
+                    prevWagon.position.set(wagon.position.x+wagon.size.x+minDist, 2.5f);
+                    Vector2 tmp = prevWagon.velocity.add(wagon.velocity).scl(0.5f);
+                    prevWagon.velocity.set(tmp);
+                    wagon.velocity.set(tmp);
+                } else if(wagon.position.dst(prevWagon.position) > wagon.size.x +maxDist){
+                    prevWagon.position.set(wagon.position.x+wagon.size.x+maxDist, 2.5f);
                     Vector2 tmp = prevWagon.velocity.add(wagon.velocity).scl(0.5f);
                     prevWagon.velocity.set(tmp);
                     wagon.velocity.set(tmp);
                 }
-
-
-
             }
             if(i<wagons.size()-1){
                 //test wagons behind
                 nextWagon = wagons.get(i+1);
-                if(wagon.position.dst(nextWagon.position) > wagon.size.x +maxDist){
+                if(wagon.position.dst(nextWagon.position) > wagon.size.x + maxDist){
                     nextWagon.position.set(wagon.position.x-wagon.size.x-maxDist, 2.5f);
+                    Vector2 tmp = nextWagon.velocity.add(wagon.velocity).scl(0.5f);
+                    wagon.velocity.set(tmp);
+                    nextWagon.velocity.set(tmp);
+                } else if(wagon.position.dst(nextWagon.position) < wagon.size.x +minDist){
+                    nextWagon.position.set(wagon.position.x-wagon.size.x-minDist, 2.5f);
                     Vector2 tmp = nextWagon.velocity.add(wagon.velocity).scl(0.5f);
                     wagon.velocity.set(tmp);
                     nextWagon.velocity.set(tmp);
