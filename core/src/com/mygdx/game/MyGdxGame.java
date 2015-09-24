@@ -27,18 +27,18 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 	private Viewport viewport, viewportHUD;
 	private ShapeRenderer shapeRenderer;
 	private SpriteBatch batch, batchHud;
-	private Train train;
 	private HUD hud;
 	private String inputString = "0";
 	boolean typing = false;
 	private BitmapFont font;
 	private int trainIndex = -1;
+	private Train3 train2;
 
 	@Override
 	public void create () {
 		AssetLoader.load();
 		hud = new HUD();
-		train = new Train();
+		train2 = new Train3();
 		camHUD = new OrthographicCamera();
 		batchHud = new SpriteBatch();
 		viewportHUD = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
@@ -94,13 +94,13 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 				cam.zoom += CAMERA_ZOOM_SPEED * delta * cam.zoom;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-				train.stop(0);
+				train2.stop(0);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
-				train.start(0);
+				train2.start(0);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-				train.zero(0);
+				train2.zero(0);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
 				reset();
@@ -114,9 +114,8 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 			typing = !typing;
 		}
 
-
 		//physics
-		train.physics(delta);
+		train2.update(delta);
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -127,7 +126,7 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 		shapeRenderer.setProjectionMatrix(cam.combined);
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
-		train.draw(batch);
+		train2.draw(batch);
 
 		batch.end();
 
@@ -175,9 +174,7 @@ public class MyGdxGame extends InputAdapter implements ApplicationListener {
 	public void reset(){
 		cam.position.set(SCENE_WIDTH*0.5f, SCENE_HEIGHT*0.5f, 0f);
 		cam.update();
-		train.reset();
+		train2.reset();
 		trainIndex = -1;
 	}
-
-
 }

@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 public class Wagon {
     public Vector2 position, velocity, acceleration, forceResultant, size, forceFront, forceRear,
             forceBreaks, centre;
-    public float mass_chassis, mass_load, rollingFriction, stressFront, strainFront, momentum;
+    public float mass_chassis, mass_load, rollingFriction, stressFront, strainFront, momentum,
+            frontSpacing, rearSpacing;
     public int index;
 
 

@@ -31,10 +31,10 @@ public class Train {
         //for all wagons on the train, work out their velocity from resultant force
         for(Wagon wagon : wagons){
             //Set accelleration from resultant force and mass
-            wagon.acceleration.set(wagon.forceResultant.x/wagon.mass_chassis,
+            wagon.acceleration.set(wagon.forceResultant.x/(wagon.mass_chassis+wagon.mass_load),
                     wagon.forceResultant.y/wagon.mass_chassis);
             //add accelleration to velocity
-            wagon.velocity.add(wagon.acceleration);
+            wagon.velocity.add(wagon.acceleration.scl(delta));
             //add delta-scaled velocity to position
             wagon.position.add(wagon.velocity.cpy().scl(delta));
         }
@@ -52,35 +52,38 @@ public class Train {
         float vA0 = wagon.velocity.x;
         float vB0 = nextWagon.velocity.x;
 
+        Gdx.app.log("Calculating collision time...","");
+
         return 0;
     }
 
     public int getCollision(){
         Wagon prevWagon, wagon, nextWagon;
         int indexMO = -1, indexMS = -1, index = -1;
-        float maxSpacing = 0, maxOverlap = 0, tmpOverlap = 0;
+        float maxSpacing = 0, minSpacing = 0, tmpSpacing = 0;
 
         for(int i = 0; i < wagons.size(); i++){
             wagon = wagons.get(i);
             if(i < wagons.size()-1){
                 nextWagon = wagons.get(i+1);
-                tmpOverlap = wagon.position.x - nextWagon.position.x-wagon.size.x;
-                if(tmpOverlap < minDist){
-                    if(tmpOverlap<maxOverlap){
-                        maxOverlap = tmpOverlap+minDist;
+                tmpSpacing= wagon.position.x - nextWagon.position.x-wagon.size.x;
+                if(tmpSpacing < minDist){
+                    if(tmpSpacing<minSpacing){
+                        minSpacing = tmpSpacing+minDist;
                         indexMO = i;
-                        Gdx.app.log("Collision at wagon maxoverlap",""+i);
+                        Gdx.app.log("Collision at wagon MinSpacing","MS:"+minSpacing+" " +
+                                "tmpMO:"+tmpSpacing+" i"+i);
                     }
                 }
-                if(tmpOverlap>maxDist){
-                    if(tmpOverlap>maxSpacing) {
-                        maxSpacing = tmpOverlap - maxDist;
+                if(tmpSpacing>maxDist){
+                    if(tmpSpacing>maxSpacing) {
+                        maxSpacing = tmpSpacing - maxDist;
                         indexMS = i;
-                        Gdx.app.log("Collision at wagon maxspacing", "" + i);
+                        Gdx.app.log("Collision at wagon MaxSpacing", "" + i);
                     }
                 }
             }
-            if(maxOverlap > maxSpacing){
+            if(minSpacing > maxSpacing){
                 Gdx.app.log("Collision at wagon ",""+i);
                 return i;
             }
@@ -95,7 +98,7 @@ public class Train {
 
         index = getCollision();
         float timeStep = -1;
-        //timeStep = calcCollissionTime(index, delta);
+
         if(timeStep != -1)
         Gdx.app.log("TimeCalced", "TimeStep: "+timeStep+" Delta:"+delta);
 
@@ -104,9 +107,9 @@ public class Train {
         for(int i = 0; i < wagons.size(); i++) {
             wagon = wagons.get(i);
 
-            wagon.acceleration.set(wagon.forceResultant.x / wagon.mass_chassis,
-                    wagon.forceResultant.y / wagon.mass_chassis);
-            wagon.velocity.add(wagon.acceleration);
+            wagon.acceleration.set(wagon.forceResultant.x / (wagon.mass_chassis+wagon.mass_load),
+                    wagon.forceResultant.y / (wagon.mass_chassis+wagon.mass_load));
+            wagon.velocity.add(wagon.acceleration.scl(delta));
             wagon.position.add(wagon.velocity.cpy().scl(delta));
 
             if(i>0){
